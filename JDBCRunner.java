@@ -54,10 +54,10 @@ public class JDBCRunner {
 
     private static void listGroups(Connection connection) {
         try{
-            Statment statement = connection.createStatement();
+            //statement = connection.createStatement();
             String sql;
             sql = "SELECT groupName,headWriter,yearFormed,subject FROM WritingGroup";
-            Resultset resultSet = statement.executeQuery(sql);
+            resultSet = statement.executeQuery(sql);
             
             //extract data
             System.out.printf(displayFormat,"Group Name", "Head Writer", "Year Formed", "Subject\n");
