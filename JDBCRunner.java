@@ -52,40 +52,8 @@ public class JDBCRunner {
         scanner.close();
     }
 
-    private static void listGroups(Connection connection) {
-        try{
-            Statment statement = connection.createStatement();
-            String sql;
-            sql = "SELECT groupName,headWriter,yearFormed,subject FROM WritingGroup";
-            Resultset resultSet = statement.executeQuery(sql);
-            
-            //extract data
-            System.out.printf(displayFormat,"Group Name", "Head Writer", "Year Formed", "Subject\n");
-            while(resultSet.next()){
-                //Retrieve by column
-                String name = resultSet.getString("groupName");
-                String writer = resultSet.getString("groupName");
-                int year = resultSet.getInt("yearFormed");
-                String subject = resultSet.getString("subject");
-                
-                //Display value
-                System.out.printf(displayFormat, dispNull(name),dispNull(writer),dispNull(year),dispNull(subject));
-                
-            }
-            System.out.println();
-            
-            //Clean up
-            resultSet.close();
-            statement.close();
-    }
-        catch (SQLException se) {
-            //Handle errors for JDBC
-            se.printStackTrace();
-        } catch (Exception e) {
-            //Handle errors for Class.forName
-            e.printStackTrace();}
-        
-      //  repository.test();
+    private static void listGroups() {
+        repository.test();
     }
 
     private static void listGroup() {
