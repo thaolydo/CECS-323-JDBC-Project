@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.SQLIntegrityConstraintViolationException;
 import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +36,7 @@ public class Repository {
             connection = DriverManager.getConnection(DB_DRV, DB_USER, DB_PASSWD);
             connection.setSchema(SCHEMA_NAME);
         } catch (SQLException e) {
-            System.out.println("Unable to make a connection to the server");
+            throw new InternalErrorException("Unable to make a connection to the server");
         }
     }
 
@@ -43,7 +44,7 @@ public class Repository {
         try {
             this.connection.close();
         } catch (SQLException e) {
-            System.out.println("Unable to close connection");
+            throw new InternalErrorException("Unable to close connection");
         }
     }
 
@@ -64,7 +65,7 @@ public class Repository {
     }
 
     // TODO: javadoc
-    public List<String> getAllWritingGroupNames() throws SQLException {
+    public List<String> getAllWritingGroupNames() {
         List<String> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery("SELECT GroupName FROM WritingGroup")) {
@@ -72,14 +73,12 @@ public class Repository {
                 result.add(rs.getString("GroupName"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
-            
+            throw new InternalErrorException("Unable to execute the query 'SELECT GroupName FROM WritingGroup'");
         }
         return result;
     }
 
-    public WritingGroup getWritingGroup(String groupName) throws SQLException {
+    public WritingGroup getWritingGroup(String groupName) {
         WritingGroup result = null;
         try (PreparedStatement statement = connection.prepareStatement(GET_WRITING_GROUP_QUERY)) {
             statement.setString(1, groupName);
@@ -93,15 +92,15 @@ public class Repository {
                         .build();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
-                System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
-                
+                throw new InternalErrorException("Unable to execute the query " + GET_WRITING_GROUP_QUERY);
             }
+        } catch (SQLException e) {
+            throw new InternalErrorException("Unable to create prepared statement " + GET_WRITING_GROUP_QUERY);
         }
         return result;
     }
 
-    public List<String> getAllPublisherNames() throws SQLException {
+    public List<String> getAllPublisherNames() {
         List<String> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery("SELECT PublisherName FROM Publisher")) {
@@ -109,14 +108,12 @@ public class Repository {
                 result.add(rs.getString("PublisherName"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            // TODO: Throw query error
-            System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
+            throw new InternalErrorException("Unable to execute the query 'SELECT PublisherName FROM Publisher'");
         }
         return result;
     }
 
-    public Publisher getPublisher(String publisherName) throws SQLException {
+    public Publisher getPublisher(String publisherName) {
         Publisher result = null;
         try (PreparedStatement statement = connection.prepareStatement(GET_PUBLISHER_QUERY)) {
             statement.setString(1, publisherName);
@@ -130,14 +127,15 @@ public class Repository {
                         .build();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
-                System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
+                throw new InternalErrorException("Unable to execute the query " + GET_PUBLISHER_QUERY);
             }
+        } catch (SQLException e) {
+            throw new InternalErrorException("Unable to create the prepared statement " + GET_PUBLISHER_QUERY);
         }
         return result;
     }
 
-    public List<String> getAllBookTitles() throws SQLException {
+    public List<String> getAllBookTitles() {
         List<String> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
             ResultSet rs = statement.executeQuery("SELECT BookTitle FROM Book")) {
@@ -145,14 +143,12 @@ public class Repository {
                 result.add(rs.getString("BookTitle"));
             }
         } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
-            
+            throw new InternalErrorException("Unable to execute the query 'SELECT BookTitle FROM Book'");
         }
         return result;
     }
 
-    public Book getBook(String bookTitle, String groupName) throws SQLException {
+    public Book getBook(String bookTitle, String groupName) {
         Book result = null;
         try (PreparedStatement statement = connection.prepareStatement(GET_BOOK_QUERY)) {
             statement.setString(1, groupName);
@@ -168,14 +164,15 @@ public class Repository {
                         .build();
                 }
             } catch (SQLException e) {
-                e.printStackTrace();
-                System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
+                throw new InternalErrorException("Unable to execute the query " + GET_BOOK_QUERY);
             }
+        } catch (SQLException e) {
+            throw new InternalErrorException("Unable to create prepared statement for " + GET_BOOK_QUERY);
         }
         return result;
     }
 
-    public boolean insertBook(Book book) throws SQLException {
+    public boolean insertBook(Book book) {
         try (PreparedStatement statement = connection.prepareStatement(INSERT_BOOK_STATEMENT)) {
             statement.setString(1, book.groupName());
             statement.setString(2, book.bookTitle());
@@ -184,13 +181,14 @@ public class Repository {
             statement.setInt(5, book.numberOfPages());
             int count = statement.executeUpdate();
             return count > 0;
+        } catch (SQLIntegrityConstraintViolationException e) {
+            return false;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new InternalErrorException("Unable to execute the query " + INSERT_BOOK_STATEMENT);
         }
-        return false;
     }
 
-    public boolean insertPublisher(Publisher publisher) throws SQLException {
+    public boolean insertPublisher(Publisher publisher) {
         try (PreparedStatement statement = connection.prepareStatement(INSERT_PUBLISHER_STATEMENT)) {
             statement.setString(1, publisher.publisherName());
             statement.setString(2, publisher.publisherAddress());
@@ -198,10 +196,12 @@ public class Repository {
             statement.setString(4, publisher.publisherEmail());
             int count = statement.executeUpdate();
             return count > 0;
+        } catch (SQLIntegrityConstraintViolationException e) {
+            System.out.printf("Failed to insert publisher '%s' because it already exists\n", publisher.publisherName());
+            return false;
         } catch (SQLException e) {
-            e.printStackTrace();
+            throw new InternalErrorException("Unable to execute the query " + INSERT_PUBLISHER_STATEMENT);
         }
-        return false;
     }
 
     public boolean updateBookByPublisher(String formerPublisher, String newPublisher) {
@@ -210,22 +210,22 @@ public class Repository {
             statement.setString(2, formerPublisher);
             int count = statement.executeUpdate();
             return count > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        }  catch (SQLException e) {
+            throw new InternalErrorException("Unable to execute the query " + UPDATE_BOOK_PUBLISHER_STATEMENT);
         }
-        return false;
     }
 
-    public boolean removeBook(String bookTitle, String groupName) throws SQLException {
+    public boolean removeBook(String bookTitle, String groupName) {
         try (PreparedStatement statement = connection.prepareStatement(REMOVE_BOOK_STATEMENT)) {
             statement.setString(1, groupName);
             statement.setString(2, bookTitle);
             int count = statement.executeUpdate();
             return count > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        } catch (SQLIntegrityConstraintViolationException e) {
+            return false;
+        }  catch (SQLException e) {
+            throw new InternalErrorException("Unable to execute the query " + REMOVE_BOOK_STATEMENT);
         }
-        return false;
     }
 
 }

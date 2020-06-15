@@ -1,6 +1,5 @@
 package project.jdbc;
 
-import java.sql.SQLException;
 import java.util.Scanner;
 
 public class JDBCRunner {
@@ -8,7 +7,7 @@ public class JDBCRunner {
     private static Repository repository = Repository.getRepository();
     static final String displayFormat = "%-5s%-15s%-15s%-15s\n"; // from professor's source
 
-    public static void main(String[] args) throws SQLException {
+    public static void main(String[] args) throws InternalErrorException {
         while (true) {
             int option = displayMenu();
             if (option == 0) {
@@ -54,13 +53,13 @@ public class JDBCRunner {
         repository.closeConnection();
     }
 
-    private static void listGroups() throws SQLException {
+    private static void listGroups() {
         for (String groupName : repository.getAllWritingGroupNames()) {
             System.out.println("\t" + groupName);
         }
     }
 
-    private static void listGroup() throws SQLException {
+    private static void listGroup() {
         // Get user input
         System.out.print("Enter writting group: ");
         String groupName = scanner.nextLine();
@@ -69,26 +68,26 @@ public class JDBCRunner {
         System.out.println("\t" + repository.getWritingGroup(groupName));
     }
 
-    private static void listPublishers() throws SQLException {
+    private static void listPublishers() {
         for (String publisherName : repository.getAllPublisherNames()) {
             System.out.println("\t" + publisherName);
         }
     }
 
-    private static void listPublisher() throws SQLException {
+    private static void listPublisher() {
         // Get user input
         System.out.print("Enter the Publisher: ");
         String publisherName = scanner.nextLine();
         System.out.println("\t" + repository.getPublisher(publisherName));
     }
 
-    private static void listBookTitles() throws SQLException {
+    private static void listBookTitles() {
         for (String bookTitle : repository.getAllBookTitles()) {
             System.out.println("\t" + bookTitle);
         }
     }
 
-    private static void listBookTitle() throws SQLException {
+    private static void listBookTitle() {
         // Get user input
         System.out.print("Enter the title of book: ");
         String bookTitle = scanner.nextLine();
@@ -99,7 +98,7 @@ public class JDBCRunner {
         System.out.println("\t" + repository.getBook(bookTitle, groupName));
     }
 
-    private static void insertBook() throws SQLException {
+    private static void insertBook() {
         // Get user input
         System.out.print("Enter the title of book to insert: ");
         String bookTitle = scanner.nextLine();
@@ -122,12 +121,34 @@ public class JDBCRunner {
             .numberOfPages(numberOfPages)
             .build();
 
+        // Check if publisher exist
+        if (repository.getPublisher(publisherName) == null) {
+            System.out.printf("Publisher '%s' does not exist\n", publisherName);
+            return;
+        }
+
+        // Check if writing group exist
+        if (repository.getWritingGroup(groupName) == null) {
+            System.out.printf("Writing group '%s' does not exist\n", groupName);
+            return;
+        }
+        
+        // Check if book already exist
+        if (repository.getBook(bookTitle, groupName) != null) {
+            System.out.printf("The book with title '%s' and writing group '%s' alread exists\n", bookTitle, groupName);
+            return;
+        }
+        
         // Insert to database
-        // TODO: make sure writing group and publisher exist before insert
-        repository.insertBook(book);
+        if (repository.insertBook(book)) {
+            System.out.printf("The book '%s' has been added successfully\n", bookTitle);
+        } else {
+            System.out.printf("Failed to add the book '%s' with publisher '%s' because book title and publisher must be unique\n",
+                bookTitle, publisherName);
+        }
     }
 
-    private static void insertPublisher() throws SQLException {
+    private static void insertPublisher() {
         // Get user input
         System.out.print("Enter the Publisher name: ");
         String publisherName = scanner.nextLine();
@@ -148,28 +169,46 @@ public class JDBCRunner {
             .publisherEmail(publisherEmail)
             .build();
 
-        // Insert and update
-        if (repository.insertPublisher(publisher)) {
-            System.out.printf("The publisher '%s' has been added successfully\n", publisherName);
+        // Insert publisher
+        if (!repository.insertPublisher(publisher)) {
+            System.out.printf("Failed to add. The publisher '%s' already exist", publisherName);
+            return;
         }
-        if (repository.updateBookByPublisher(formerPublisher, publisherName)) {
-            System.out.printf("The books with publisher '%s' has been replaced with publisher '%s'\n",
-                formerPublisher, publisherName);
+        System.out.printf("The publisher '%s' has been added successfully", publisherName);
+        
+        // Update books with new publisher
+        if (!repository.updateBookByPublisher(formerPublisher, publisherName)) {
+            System.out.printf("Failed to update books with former publisher '%s' and new publisher '%s'.", publisherName);
+            return;
         }
-        // TODO: output if fail any of the two above
+        System.out.printf("The books with publisher '%s' has been replaced with publisher '%s' successfully\n",
+            formerPublisher, publisherName);
     }
 
-    private static void removeBook() throws SQLException {
+    private static void removeBook() {
         System.out.print("Enter title of book to remove: ");
         String bookTitle = scanner.nextLine();
         System.out.print("Enter writting group of book to remove: ");
         String groupName = scanner.nextLine();
 
+        // Check if writing group exist
+        if (repository.getWritingGroup(groupName) == null) {
+            System.out.printf("Writing group '%s' does not exist\n", groupName);
+            return;
+        }
+
+        // Check if the book exist
+        if (repository.getBook(bookTitle, groupName) == null) {
+            System.out.printf("The book with title '%s' and writing group '%s' does not exist\n", bookTitle, groupName);
+            return;
+        }
+
         if (repository.removeBook(bookTitle, groupName)) {
             System.out.printf("The book '%s' with writing group '%s' has been removed successfully\n",
                 bookTitle, groupName);
+        } else {
+            System.out.printf("Failed to remove the book '%s' with wring group '%s'\n", bookTitle, groupName);
         }
-        // TODO: handle the exception when book is not removed
     }
 
     private static int displayMenu() {
