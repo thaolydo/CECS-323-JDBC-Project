@@ -78,7 +78,7 @@ public class JDBCRunner {
         // Get user input
         System.out.print("Enter the Publisher: ");
         String publisherName = scanner.nextLine();
-        repository.getPublisher(publisherName);
+        System.out.println("\t" + repository.getPublisher(publisherName));
     }
 
     private static void listBookTitles() throws SQLException {
@@ -95,7 +95,7 @@ public class JDBCRunner {
         String groupName = scanner.nextLine();
 
         // Print out result
-        repository.getBook(bookTitle, groupName);
+        System.out.println("\t" + repository.getBook(bookTitle, groupName));
     }
 
     private static void insertBook() throws SQLException {
@@ -106,10 +106,11 @@ public class JDBCRunner {
         String groupName = scanner.nextLine();
         System.out.print("Enter the Publisher: ");
         String publisherName = scanner.nextLine();
-        System.out.print("Enter the YearPublished : ");
+        System.out.print("Enter the YearPublished: ");
         int yearPublished = scanner.nextInt();
-        System.out.print("Enter the number of pages : ");
+        System.out.print("Enter the number of pages: ");
         int numberOfPages = scanner.nextInt();
+        scanner.nextLine();
 
         // Build book object from input
         Book book = Book.builder()
@@ -146,8 +147,13 @@ public class JDBCRunner {
             .build();
 
         // Insert and update
-        repository.insertPublisher(publisher);
-        repository.updateBookByPublisher(formerPublisher, publisherName);
+        if (repository.insertPublisher(publisher)) {
+            System.out.printf("The publisher '%s' has been added successfully\n", publisherName);
+            }
+        if (repository.updateBookByPublisher(formerPublisher, publisherName)) {
+            System.out.printf("The books with publisher '%s' has been replaced with publisher '%s'\n",
+                formerPublisher, publisherName);
+        }
     }
 
     private static void removeBook() throws SQLException {
@@ -155,7 +161,11 @@ public class JDBCRunner {
         String bookTitle = scanner.nextLine();
         System.out.print("Enter writting group of book to remove: ");
         String groupName = scanner.nextLine();
-        repository.removeBook(bookTitle, groupName);
+
+        if (repository.removeBook(bookTitle, groupName)) {
+            System.out.printf("The book '%s' with writing group '%s' has been removed successfully\n",
+                bookTitle, groupName);
+        }
     }
 
     private static int displayMenu() {
@@ -174,13 +184,15 @@ public class JDBCRunner {
         System.out.println("0. Quit");
         System.out.println();
         System.out.print("Choose option: ");
-        return scanner.nextInt();
+
+        int option = scanner.nextInt();
+        scanner.nextLine();
+        return option;
     }
 
     private static void clearScreen() {
         System.out.println();
         System.out.print("Press 'ENTER' to continue");
-        scanner.nextLine();
         scanner.nextLine();
         System.out.print("\033[H\033[2J");
         System.out.flush();
