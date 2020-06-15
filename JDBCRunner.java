@@ -1,13 +1,14 @@
 package project.jdbc;
 
+import java.sql.SQLException;
 import java.util.Scanner;
 
 public class JDBCRunner {
     private static Scanner scanner = new Scanner(System.in);
     private static Repository repository = Repository.getRepository();
-     static final String displayFormat="%-5s%-15s%-15s%-15s\n"; // from professor's source
+    static final String displayFormat = "%-5s%-15s%-15s%-15s\n"; // from professor's source
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws SQLException {
         while (true) {
             int option = displayMenu();
             if (option == 0) {
@@ -52,32 +53,109 @@ public class JDBCRunner {
         scanner.close();
     }
 
-    private static void listGroups() {
-        repository.test();
+    private static void listGroups() throws SQLException {
+        for (String groupName : repository.getAllWritingGroupNames()) {
+            System.out.println("\t" + groupName);
+        }
     }
 
-    private static void listGroup() {
+    private static void listGroup() throws SQLException {
+        // Get user input
+        System.out.print("Enter writting group: ");
+        String groupName = scanner.nextLine();
+
+        // Print out result
+        System.out.println("\t" + repository.getWritingGroup(groupName));
     }
 
-    private static void listPublishers() {
+    private static void listPublishers() throws SQLException {
+        for (String publisherName : repository.getAllPublisherNames()) {
+            System.out.println("\t" + publisherName);
+        }
     }
 
-    private static void listPublisher() {
+    private static void listPublisher() throws SQLException {
+        // Get user input
+        System.out.print("Enter the Publisher: ");
+        String publisherName = scanner.nextLine();
+        repository.getPublisher(publisherName);
     }
 
-    private static void listBookTitles() {
+    private static void listBookTitles() throws SQLException {
+        for (String bookTitle : repository.getAllBookTitles()) {
+            System.out.println("\t" + bookTitle);
+        }
     }
 
-    private static void listBookTitle() {
+    private static void listBookTitle() throws SQLException {
+        // Get user input
+        System.out.print("Enter the title of book: ");
+        String bookTitle = scanner.nextLine();
+        System.out.print("Enter writting group: ");
+        String groupName = scanner.nextLine();
+
+        // Print out result
+        repository.getBook(bookTitle, groupName);
     }
 
-    private static void insertBook() {
+    private static void insertBook() throws SQLException {
+        // Get user input
+        System.out.print("Enter the title of book to insert: ");
+        String bookTitle = scanner.nextLine();
+        System.out.print("Enter writting group: ");
+        String groupName = scanner.nextLine();
+        System.out.print("Enter the Publisher: ");
+        String publisherName = scanner.nextLine();
+        System.out.print("Enter the YearPublished : ");
+        int yearPublished = scanner.nextInt();
+        System.out.print("Enter the number of pages : ");
+        int numberOfPages = scanner.nextInt();
+
+        // Build book object from input
+        Book book = Book.builder()
+            .groupName(groupName)
+            .bookTitle(bookTitle)
+            .publisherName(publisherName)
+            .yearPublished(yearPublished)
+            .numberOfPages(numberOfPages)
+            .build();
+
+        // Insert to database
+        repository.insertBook(book);
     }
 
-    private static void insertPublisher() {
+    private static void insertPublisher() throws SQLException {
+        // Get user input
+        System.out.print("Enter the Publisher name: ");
+        String publisherName = scanner.nextLine();
+        System.out.print("Enter the address: ");
+        String publisherAddress = scanner.nextLine();
+        System.out.print("Enter the publisher phone: ");
+        String publisherPhone = scanner.nextLine();
+        System.out.print("Enter the email : ");
+        String publisherEmail = scanner.nextLine();
+        System.out.print("Enter the replaced publisher name: ");
+        String formerPublisher = scanner.nextLine();
+
+        // Build the publisher object from input
+        Publisher publisher = Publisher.builder()
+            .publisherName(publisherName)
+            .publisherAddress(publisherAddress)
+            .publisherPhone(publisherPhone)
+            .publisherEmail(publisherEmail)
+            .build();
+
+        // Insert and update
+        repository.insertPublisher(publisher);
+        repository.updateBookByPublisher(formerPublisher, publisherName);
     }
 
-    private static void removeBook() {
+    private static void removeBook() throws SQLException {
+        System.out.print("Enter title of book to remove: ");
+        String bookTitle = scanner.nextLine();
+        System.out.print("Enter writting group of book to remove: ");
+        String groupName = scanner.nextLine();
+        repository.removeBook(bookTitle, groupName);
     }
 
     private static int displayMenu() {
