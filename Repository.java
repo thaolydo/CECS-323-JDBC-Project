@@ -2,6 +2,7 @@ package project.jdbc;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -10,12 +11,22 @@ import java.util.List;
 
 public class Repository {
     private static volatile Repository repository;
+    
     private Connection connection;
-
     private static final String DB_DRV = "jdbc:derby://localhost/Lab Project";
     private static final String DB_USER = "lab_project";
     private static final String DB_PASSWD = "Test1234";
     private static final String SCHEMA_NAME = "APP";
+
+    // Prepared statement string
+    private static final String GET_WRITING_GROUP_QUERY = "SELECT HeadWriter, YearFormed, Subject FROM WritingGroup WHERE GroupName = ?";
+    private static final String GET_PUBLISHER_QUERY = "SELECT PublisherAddress, PublisherPhone, PublisherEmail FROM Publisher WHERE PublisherName = ?";
+    private static final String GET_BOOK_QUERY = "SELECT PublisherName, YearPublished, NumberPages FROM Book " +
+        "WHERE GroupName = ? AND BookTitle = ?";
+    private static final String INSERT_BOOK_STATEMENT = "INSERT INTO Book(GroupName, BookTitle, PublisherName, YearPublished, NumberPages) VALUES (?, ?, ?, ?, ?)";
+    private static final String INSERT_PUBLISHER_STATEMENT = "INSERT INTO Publisher(PublisherName, PublisherAddress, PublisherPhone, PublisherEmail) VALUES(?, ?, ?, ?)";
+    private static final String UPDATE_BOOK_PUBLISHER_STATEMENT = "UPDATE Book SET PublisherName = ? WHERE PublisherName = ?";
+    private static final String REMOVE_BOOK_STATEMENT = "DELETE FROM Book where GroupName = ? AND BookTitle = ?";
 
 
     /** Private default constructor for singleton pattern */
@@ -25,7 +36,14 @@ public class Repository {
             connection.setSchema(SCHEMA_NAME);
         } catch (SQLException e) {
             System.out.println("Unable to make a connection to the server");
-            // TODO: Throw our own exception here
+        }
+    }
+
+    public void closeConnection() {
+        try {
+            this.connection.close();
+        } catch (SQLException e) {
+            System.out.println("Unable to close connection");
         }
     }
 
@@ -63,21 +81,22 @@ public class Repository {
 
     public WritingGroup getWritingGroup(String groupName) throws SQLException {
         WritingGroup result = null;
-        try (Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(
-                "SELECT HeadWriter, YearFormed, Subject FROM WritingGroup WHERE GroupName='" + groupName + "'")) {
-            if (rs.next()) {
-                result = WritingGroup.builder()
-                    .groupName(groupName)
-                    .headWriter(rs.getString("HeadWriter"))
-                    .subject(rs.getString("Subject"))
-                    .yearFormed(rs.getInt("YearFormed"))
-                    .build();
+        try (PreparedStatement statement = connection.prepareStatement(GET_WRITING_GROUP_QUERY)) {
+            statement.setString(1, groupName);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    result = WritingGroup.builder()
+                        .groupName(groupName)
+                        .headWriter(rs.getString("HeadWriter"))
+                        .subject(rs.getString("Subject"))
+                        .yearFormed(rs.getInt("YearFormed"))
+                        .build();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
+                
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
-            
         }
         return result;
     }
@@ -91,29 +110,29 @@ public class Repository {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
             // TODO: Throw query error
+            System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
         }
         return result;
     }
 
     public Publisher getPublisher(String publisherName) throws SQLException {
         Publisher result = null;
-        try (Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(
-            "SELECT PublisherAddress, PublisherPhone, PublisherEmail FROM Publisher "
-            + "WHERE PublisherName='" + publisherName + "'")) {
-            if (rs.next()) {
-                result = Publisher.builder()
-                    .publisherName(publisherName)
-                    .publisherAddress(rs.getString("PublisherAddress"))
-                    .publisherPhone(rs.getString("PublisherPhone"))
-                    .publisherEmail(rs.getString("PublisherEmail"))
-                    .build();
+        try (PreparedStatement statement = connection.prepareStatement(GET_PUBLISHER_QUERY)) {
+            statement.setString(1, publisherName);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    result = Publisher.builder()
+                        .publisherName(publisherName)
+                        .publisherAddress(rs.getString("PublisherAddress"))
+                        .publisherPhone(rs.getString("PublisherPhone"))
+                        .publisherEmail(rs.getString("PublisherEmail"))
+                        .build();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
         }
         return result;
     }
@@ -135,31 +154,35 @@ public class Repository {
 
     public Book getBook(String bookTitle, String groupName) throws SQLException {
         Book result = null;
-        try (Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery(
-            "SELECT PublisherName, YearPublished, NumberPages FROM Book " +
-            "WHERE GroupName='" + groupName + "' AND BookTitle='" + bookTitle + "'")) {
-            if (rs.next()) {
-                result = Book.builder()
-                    .bookTitle(bookTitle)
-                    .groupName(groupName)
-                    .publisherName(rs.getString("PublisherName"))
-                    .yearPublished(rs.getInt("YearPublished"))
-                    .numberOfPages(rs.getInt("NumberPages"))
-                    .build();
+        try (PreparedStatement statement = connection.prepareStatement(GET_BOOK_QUERY)) {
+            statement.setString(1, groupName);
+            statement.setString(2, bookTitle);
+            try (ResultSet rs = statement.executeQuery()) {
+                if (rs.next()) {
+                    result = Book.builder()
+                        .bookTitle(bookTitle)
+                        .groupName(groupName)
+                        .publisherName(rs.getString("PublisherName"))
+                        .yearPublished(rs.getInt("YearPublished"))
+                        .numberOfPages(rs.getInt("NumberPages"))
+                        .build();
+                }
+            } catch (SQLException e) {
+                e.printStackTrace();
+                System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Unable to execute the query 'SELECT GroupName FROM WRITINGGROUP'");
         }
         return result;
     }
 
     public boolean insertBook(Book book) throws SQLException {
-        try (Statement statement = connection.createStatement()) {
-            int count = statement.executeUpdate("INSERT INTO Book(GroupName, BookTitle, PublisherName, YearPublished, NumberPages) " +
-                "VALUES ('" + book.groupName() + "','" + book.bookTitle() + "','" + 
-                book.publisherName() + "'," + book.yearPublished() + "," + book.numberOfPages() + ")");
+        try (PreparedStatement statement = connection.prepareStatement(INSERT_BOOK_STATEMENT)) {
+            statement.setString(1, book.groupName());
+            statement.setString(2, book.bookTitle());
+            statement.setString(3, book.publisherName());
+            statement.setInt(4, book.yearPublished());
+            statement.setInt(5, book.numberOfPages());
+            int count = statement.executeUpdate();
             return count > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -168,10 +191,12 @@ public class Repository {
     }
 
     public boolean insertPublisher(Publisher publisher) throws SQLException {
-        try (Statement statement = connection.createStatement()) {
-            int count = statement.executeUpdate("INSERT INTO Publisher(PublisherName, PublisherAddress, PublisherPhone, PublisherEmail) " +
-                "VALUES ('" + publisher.publisherName() + "','" + publisher.publisherAddress() + "','" + 
-                publisher.publisherPhone() + "','" + publisher.publisherEmail() + "')");
+        try (PreparedStatement statement = connection.prepareStatement(INSERT_PUBLISHER_STATEMENT)) {
+            statement.setString(1, publisher.publisherName());
+            statement.setString(2, publisher.publisherAddress());
+            statement.setString(3, publisher.publisherPhone());
+            statement.setString(4, publisher.publisherEmail());
+            int count = statement.executeUpdate();
             return count > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -180,9 +205,10 @@ public class Repository {
     }
 
     public boolean updateBookByPublisher(String formerPublisher, String newPublisher) {
-        try (Statement statement = connection.createStatement()) {
-            int count = statement.executeUpdate(
-                "UPDATE Book SET PublisherName='" + newPublisher + "' WHERE PublisherName='" + formerPublisher + "'");
+        try (PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_PUBLISHER_STATEMENT)) {
+            statement.setString(1, newPublisher);
+            statement.setString(2, formerPublisher);
+            int count = statement.executeUpdate();
             return count > 0;
         } catch (SQLException e) {
             e.printStackTrace();
@@ -191,9 +217,10 @@ public class Repository {
     }
 
     public boolean removeBook(String bookTitle, String groupName) throws SQLException {
-        try (Statement statement = connection.createStatement()) {
-            int count = statement.executeUpdate(
-                "DELETE FROM Book where GroupName='" + groupName + "' AND BookTitle='" + bookTitle + "'");
+        try (PreparedStatement statement = connection.prepareStatement(REMOVE_BOOK_STATEMENT)) {
+            statement.setString(1, groupName);
+            statement.setString(2, bookTitle);
+            int count = statement.executeUpdate();
             return count > 0;
         } catch (SQLException e) {
             e.printStackTrace();

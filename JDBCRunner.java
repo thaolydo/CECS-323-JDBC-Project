@@ -51,6 +51,7 @@ public class JDBCRunner {
         }
 
         scanner.close();
+        repository.closeConnection();
     }
 
     private static void listGroups() throws SQLException {
@@ -122,6 +123,7 @@ public class JDBCRunner {
             .build();
 
         // Insert to database
+        // TODO: make sure writing group and publisher exist before insert
         repository.insertBook(book);
     }
 
@@ -149,11 +151,12 @@ public class JDBCRunner {
         // Insert and update
         if (repository.insertPublisher(publisher)) {
             System.out.printf("The publisher '%s' has been added successfully\n", publisherName);
-            }
+        }
         if (repository.updateBookByPublisher(formerPublisher, publisherName)) {
             System.out.printf("The books with publisher '%s' has been replaced with publisher '%s'\n",
                 formerPublisher, publisherName);
         }
+        // TODO: output if fail any of the two above
     }
 
     private static void removeBook() throws SQLException {
@@ -166,6 +169,7 @@ public class JDBCRunner {
             System.out.printf("The book '%s' with writing group '%s' has been removed successfully\n",
                 bookTitle, groupName);
         }
+        // TODO: handle the exception when book is not removed
     }
 
     private static int displayMenu() {
