@@ -1,7 +1,13 @@
+/**
+ * CECS 323 - Summer 2020
+ * JDBC Project
+ * Name: Ly Do, Taghreed, Fiona Le
+ */
 package project.jdbc;
 
 import java.util.Scanner;
 
+/** Runner class */
 public class JDBCRunner {
     private static Scanner scanner = new Scanner(System.in);
     private static Repository repository = Repository.getRepository();

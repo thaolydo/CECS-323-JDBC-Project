@@ -10,6 +10,9 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * This class is to communicate with Database.
+ */
 public class Repository {
     private static volatile Repository repository;
     
@@ -40,6 +43,7 @@ public class Repository {
         }
     }
 
+    /** Close connection */
     public void closeConnection() {
         try {
             this.connection.close();
@@ -64,7 +68,11 @@ public class Repository {
         return repository;
     }
 
-    // TODO: javadoc
+    /**
+     * This method is to retrieve all records in the WritingGroup table.
+     * 
+     * @return all records in the WritingGroup table.
+     */
     public List<String> getAllWritingGroupNames() {
         List<String> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
@@ -78,6 +86,12 @@ public class Repository {
         return result;
     }
 
+    /**
+     * This method is to retrieve a writing group specified by the given group name.
+     * 
+     * @param groupName the primary key of the WritingGroup table
+     * @return the group specified by group name
+     */
     public WritingGroup getWritingGroup(String groupName) {
         WritingGroup result = null;
         try (PreparedStatement statement = connection.prepareStatement(GET_WRITING_GROUP_QUERY)) {
@@ -100,6 +114,11 @@ public class Repository {
         return result;
     }
 
+    /**
+     * This method is to retrieve all records in the Publisher table.
+     * 
+     * @return all records in the Publisher table.
+     */
     public List<String> getAllPublisherNames() {
         List<String> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
@@ -113,6 +132,12 @@ public class Repository {
         return result;
     }
 
+    /**
+     * This method is to retrieve a publisher specified by the given publisher name.
+     * 
+     * @param publisher the primary key of the publisher table
+     * @return the pulisher specified by publisher name
+     */
     public Publisher getPublisher(String publisherName) {
         Publisher result = null;
         try (PreparedStatement statement = connection.prepareStatement(GET_PUBLISHER_QUERY)) {
@@ -135,6 +160,11 @@ public class Repository {
         return result;
     }
 
+    /**
+     * This method is to retrieve all records in the Book table.
+     * 
+     * @return all records in the Book table.
+     */
     public List<String> getAllBookTitles() {
         List<String> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
@@ -148,6 +178,13 @@ public class Repository {
         return result;
     }
 
+    /**
+     * This method is to retrieve the book specified by the given group name and book title.
+     * 
+     * @param bookTitle title of the book
+     * @param groupName the writing group of the book
+     * @return the book specified by the group name and title
+     */
     public Book getBook(String bookTitle, String groupName) {
         Book result = null;
         try (PreparedStatement statement = connection.prepareStatement(GET_BOOK_QUERY)) {
@@ -172,6 +209,12 @@ public class Repository {
         return result;
     }
 
+    /**
+     * This method is to insert the given book to the Book table.
+     * 
+     * @param book the book POJO
+     * @return true if success, false otherwise
+     */
     public boolean insertBook(Book book) {
         try (PreparedStatement statement = connection.prepareStatement(INSERT_BOOK_STATEMENT)) {
             statement.setString(1, book.groupName());
@@ -188,6 +231,12 @@ public class Repository {
         }
     }
 
+    /**
+     * This method is to insert the given publisher to the Publisher table.
+     * 
+     * @param publisher the publisher POJO
+     * @return true if success, false otherwise
+     */
     public boolean insertPublisher(Publisher publisher) {
         try (PreparedStatement statement = connection.prepareStatement(INSERT_PUBLISHER_STATEMENT)) {
             statement.setString(1, publisher.publisherName());
@@ -204,6 +253,12 @@ public class Repository {
         }
     }
 
+    /**
+     * This method is to update all book by former publisher with the new publisher
+     * @param formerPublisher the former publisher name
+     * @param newPublisher the new publisher name
+     * @return true if success, false otherwise
+     */
     public boolean updateBookByPublisher(String formerPublisher, String newPublisher) {
         try (PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_PUBLISHER_STATEMENT)) {
             statement.setString(1, newPublisher);
@@ -215,6 +270,12 @@ public class Repository {
         }
     }
 
+    /**
+     * This method is to remove the book from the table
+     * @param bookTitle the book title
+     * @param groupName the group name
+     * @return true if success, false otherwise
+     */
     public boolean removeBook(String bookTitle, String groupName) {
         try (PreparedStatement statement = connection.prepareStatement(REMOVE_BOOK_STATEMENT)) {
             statement.setString(1, groupName);
