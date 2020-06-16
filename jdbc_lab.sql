@@ -29,8 +29,6 @@ CREATE TABLE Book
     CONSTRAINT TitleAndPublisherNameUniqueness unique (BookTitle, PublisherName)
 );
 
-
-
 Insert Into WritingGroup
     (GroupName,HeadWriter,YearFormed,Subject)
 Values

@@ -11,7 +11,6 @@ import java.util.Scanner;
 public class JDBCRunner {
     private static Scanner scanner = new Scanner(System.in);
     private static Repository repository = Repository.getRepository();
-    static final String displayFormat = "%-5s%-15s%-15s%-15s\n"; // from professor's source
 
     public static void main(String[] args) throws InternalErrorException {
         while (true) {
@@ -34,7 +33,7 @@ public class JDBCRunner {
                     listPublisher();
                     break;
                 case 5:
-                    listBookTitles();
+                    listBooks();
                     break;
                 case 6:
                     listBookTitle();
@@ -60,8 +59,10 @@ public class JDBCRunner {
     }
 
     private static void listGroups() {
-        for (String groupName : repository.getAllWritingGroupNames()) {
-            System.out.println("\t" + groupName);
+        String displayFormat = "\t%-20s%-15s%-15s%-15s\n";
+        System.out.printf(displayFormat, "Group Name", "Head Writer", "Year Formed", "Subject");
+        for (WritingGroup group : repository.getAllWritingGroupNames()) {
+            System.out.printf(displayFormat, group.groupName(), group.headWriter(), group.yearFormed(), group.subject());
         }
     }
 
@@ -75,8 +76,14 @@ public class JDBCRunner {
     }
 
     private static void listPublishers() {
-        for (String publisherName : repository.getAllPublisherNames()) {
-            System.out.println("\t" + publisherName);
+        String displayFormat = "\t%-25s%-20s%-25s%-25s\n";
+        System.out.printf(displayFormat, "Publisher Name", "Publisher Phone", "Publisher Email", "Publisher Address");
+        for (Publisher publisher : repository.getAllPublisherNames()) {
+            System.out.printf(displayFormat,
+                publisher.publisherName(),
+                publisher.publisherPhone(),
+                publisher.publisherEmail(),
+                publisher.publisherAddress());
         }
     }
 
@@ -87,9 +94,16 @@ public class JDBCRunner {
         System.out.println("\t" + repository.getPublisher(publisherName));
     }
 
-    private static void listBookTitles() {
-        for (String bookTitle : repository.getAllBookTitles()) {
-            System.out.println("\t" + bookTitle);
+    private static void listBooks() {
+        String displayFormat = "\t%-20s%-20s%-25s%-18s%-15s\n";
+        System.out.printf(displayFormat, "Book Title", "Writing Group", "Publisher", "Year Published", "Number Of Pages");
+        for (Book book : repository.getAllBookTitles()) {
+            System.out.printf(displayFormat,
+                book.bookTitle(),
+                book.groupName(),
+                book.publisherName(),
+                book.yearPublished(),
+                book.numberOfPages());
         }
     }
 
@@ -177,14 +191,14 @@ public class JDBCRunner {
 
         // Insert publisher
         if (!repository.insertPublisher(publisher)) {
-            System.out.printf("Failed to add. The publisher '%s' already exist", publisherName);
+            System.out.printf("Failed to add. The publisher '%s' already exist\n", publisherName);
             return;
         }
-        System.out.printf("The publisher '%s' has been added successfully", publisherName);
+        System.out.printf("The publisher '%s' has been added successfully\n", publisherName);
         
         // Update books with new publisher
         if (!repository.updateBookByPublisher(formerPublisher, publisherName)) {
-            System.out.printf("Failed to update books with former publisher '%s' and new publisher '%s'.", publisherName);
+            System.out.printf("Failed to update books with former publisher '%s' and new publisher '%s'.\n", publisherName);
             return;
         }
         System.out.printf("The books with publisher '%s' has been replaced with publisher '%s' successfully\n",

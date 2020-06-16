@@ -1,0 +1,374 @@
+// DDL output
+
+Executed successfully in 0.034 s.
+no rows affected.
+Line 1, column 1
+
+
+Executed successfully in 0.017 s.
+no rows affected.
+Line 10, column 1
+
+
+Executed successfully in 0.046 s.
+no rows affected.
+Line 19, column 1
+
+Execution finished after 0.11 s, no errors occurred.
+
+
+// DML
+
+
+Executed successfully in 0.063 s.
+6 rows affected.
+Line 2, column 1
+
+
+Executed successfully in 0.166 s.
+5 rows affected.
+Line 13, column 1
+
+
+Executed successfully in 0.013 s.
+7 rows affected.
+Line 22, column 1
+
+Execution finished after 0.252 s, no errors occurred.
+
+
+
+// Java
+
+bash-3.2$  /Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/bin/java -Dfile.encoding=UTF-8 -cp /var/folders/js/z3939p4s4zz_v5t1fjpp8wdc0000gn/T/cp_1280gv0s9yhw5eu4rly7us04l.jar project.jdbc.JDBCRunner 
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 1
+        Group Name          Head Writer    Year Formed    Subject        
+        California Dream    John Snow      2010           LocalGuide     
+        Creative Writters   J. K. Rowling  2000           Fiction        
+        Data Structures     PWeiss         1999           CS             
+        DreamTravel         BearGrills     2010           Travel         
+        Happy Team          Homer Simson   1995           Psychology     
+        Java Code           Sawitch        2003           CS             
+
+Press 'ENTER' to continue
+
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 3
+        Publisher Name           Publisher Phone     Publisher Email          Publisher Address        
+        McGraw-Hill Education    614-755-4151        contact@mheducation.com  3860 Taylor Station Rd, Blacklick, OH 43004
+        Pearsons                 324-755-4151        contact@earsons.com      Los Angeles, CA 43004    
+        TECHMEDIA                91-11-33257660      BOOKS@TECHMEDIA.COM      null                     
+        WILLEY                   55-11-33257660      WDT@VSNL.NET             WILLEY St,91-11-23260877 
+        WROX                     null                INFO@WROX.COM            null                     
+
+Press 'ENTER' to continue
+
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 5
+        Book Title          Writing Group       Publisher                Year Published    Number Of Pages
+        C++ Program         Data Structures     WROX                     2018              350            
+        Camping Tutorial    DreamTravel         WILLEY                   2018              350            
+        Harry Potter        Creative Writters   WROX                     1999              450            
+        Java Program        Java Code           McGraw-Hill Education    2018              350            
+        JavaDB basics       Data Structures     TECHMEDIA                2018              350            
+        Python coding       Data Structures     TECHMEDIA                2018              350            
+        Travel Planet       DreamTravel         WILLEY                   2018              350            
+
+Press 'ENTER' to continue
+
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 2
+Enter writting group: Java Code
+        WritingGroup(groupName=Java Code, headWriter=Sawitch, subject=CS, yearFormed=2003)
+
+Press 'ENTER' to continue
+
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 4
+Enter the Publisher: WROX
+        Publisher(publisherName=WROX, publisherAddress=null, publisherPhone=null, publisherEmail=INFO@WROX.COM)
+
+Press 'ENTER' to continue
+
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 6
+Enter the title of book: Java Program
+Enter writting group: Java Code
+        Book(bookTitle=Java Program, groupName=Java Code, publisherName=McGraw-Hill Education, yearPublished=2018, numberOfPages=350)
+
+Press 'ENTER' to continue
+
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 7
+Enter the title of book to insert: Shrek   
+Enter writting group: William      
+Enter the Publisher: DreamWorks 
+Enter the YearPublished: 2001
+Enter the number of pages: 200
+Publisher 'DreamWorks' does not exist
+
+Press 'ENTER' to continue
+
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: Ruby Progam    
+Exception in thread "main" java.util.InputMismatchException
+        at java.util.Scanner.throwFor(Scanner.java:864)
+        at java.util.Scanner.next(Scanner.java:1485)
+        at java.util.Scanner.nextInt(Scanner.java:2117)
+        at java.util.Scanner.nextInt(Scanner.java:2076)
+        at project.jdbc.JDBCRunner.displayMenu(JDBCRunner.java:251)
+        at project.jdbc.JDBCRunner.main(JDBCRunner.java:17)
+bash-3.2$  cd /Users/lydo/OneDrive/CS_323 ; /Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/bin/java -Df
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 7
+Enter the title of book to insert: Ruby
+Enter writting group: Java Code
+Enter the Publisher: WROX
+Enter the YearPublished: 2001
+Enter the number of pages: 155
+The book 'Ruby' has been added successfully
+
+Press 'ENTER' to continue
+
+bash-3.2$  cd /Users/lydo/OneDrive/CS_323 ; /Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/bin/java -Dfile.encoding=UTF-8 -cp /var/folders/js/z3939p4s4zz_v5t1fjpp8wdc0000gn/T/cp_1280gv0s9yhw5eu4rly7us04l.jar project.jdbc.JDBCRunner 
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 8
+Enter the Publisher name: Cambridge
+Enter the address: 252 Woodlane, Irvine
+Enter the publisher phone: 714-472-2472
+Enter the email : cambridge@email.com
+Enter the replaced publisher name: Pearsons
+The publisher 'Cambridge' has been added successfully 
+The books with publisher 'Pearsons' has been replaced with publisher 'Cambridge' successfully
+
+Press 'ENTER' to continue
+
+bash-3.2$  cd /Users/lydo/OneDrive/CS_323 ; /Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/bin/java -Dfile.encoding=UTF-8 -cp /var/folders/js/z3939p4s4zz_v5t1fjpp8wdc0000gn/T/cp_1280gv0s9yhw5eu4rly7us04l.jar project.jdbc.JDBCRunner 
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 9
+Enter title of book to remove: kajfa'
+Enter writting group of book to remove: afha
+Writing group 'afha' does not exist
+
+Press 'ENTER' to continue
+
+bash-3.2$  cd /Users/lydo/OneDrive/CS_323 ; /Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/bin/java -Dfile.encoding=UTF-8 -cp /var/folders/js/z3939p4s4zz_v5t1fjpp8wdc0000gn/T/cp_1280gv0s9yhw5eu4rly7us04l.jar project.jdbc.JDBCRunner 
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 9
+Enter title of book to remove: Java Program
+Enter writting group of book to remove: Java Code
+The book 'Java Program' with writing group 'Java Code' has been removed successfully
+
+Press 'ENTER' to continue
+
+
+bash-3.2$  cd /Users/lydo/OneDrive/CS_323 ; /Library/Java/JavaVirtualMachines/jdk1.8.0_212.jdk/Contents/Home/bin/java -Dfile.encoding=UTF-8 -cp /var/folders/js/z3939p4s4zz_v5t1fjpp8wdc0000gn/T/cp_1280gv0s9yhw5eu4rly7us04l.jar project.jdbc.JDBCRunner 
+----------------------------------
+|              Menu              |
+----------------------------------
+1. List all writing groups
+2. List all the data for a group
+3. List all publishers
+4. List all the data for a publisher
+5. List all book titles
+6. List all the data for a book
+7. Insert a new book
+8. Insert a new publisher and update all books published by one publisher to be
+9. Remove a book
+0. Quit
+
+Choose option: 0
+bash-3.2$ 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

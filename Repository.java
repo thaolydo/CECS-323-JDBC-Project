@@ -23,8 +23,11 @@ public class Repository {
     private static final String SCHEMA_NAME = "APP";
 
     // Prepared statement string
+    private static final String GET_WRITING_GROUPS_QUERY = "SELECT GroupName, HeadWriter, YearFormed, Subject FROM WritingGroup ORDER BY GroupName";
     private static final String GET_WRITING_GROUP_QUERY = "SELECT HeadWriter, YearFormed, Subject FROM WritingGroup WHERE GroupName = ?";
+    private static final String GET_PUBLISHERS_QUERY = "SELECT PublisherName, PublisherAddress, PublisherPhone, PublisherEmail FROM Publisher ORDER BY PublisherName";
     private static final String GET_PUBLISHER_QUERY = "SELECT PublisherAddress, PublisherPhone, PublisherEmail FROM Publisher WHERE PublisherName = ?";
+    private static final String GET_BOOKS_QUERY = "SELECT BookTitle, GroupName, PublisherName, YearPublished, NumberPages FROM Book ORDER BY BookTitle";
     private static final String GET_BOOK_QUERY = "SELECT PublisherName, YearPublished, NumberPages FROM Book " +
         "WHERE GroupName = ? AND BookTitle = ?";
     private static final String INSERT_BOOK_STATEMENT = "INSERT INTO Book(GroupName, BookTitle, PublisherName, YearPublished, NumberPages) VALUES (?, ?, ?, ?, ?)";
@@ -73,15 +76,22 @@ public class Repository {
      * 
      * @return all records in the WritingGroup table.
      */
-    public List<String> getAllWritingGroupNames() {
-        List<String> result = new ArrayList<>();
+    public List<WritingGroup> getAllWritingGroupNames() {
+        List<WritingGroup> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT GroupName FROM WritingGroup")) {
+            ResultSet rs = statement.executeQuery(GET_WRITING_GROUPS_QUERY)) {
             while (rs.next()) {
-                result.add(rs.getString("GroupName"));
+                WritingGroup group = WritingGroup.builder()
+                    .groupName(rs.getString("GroupName"))
+                    .headWriter(rs.getString("HeadWriter"))
+                    .yearFormed(rs.getInt("YearFormed"))
+                    .subject(rs.getString("Subject"))
+                    .build();
+
+                result.add(group);
             }
         } catch (SQLException e) {
-            throw new InternalErrorException("Unable to execute the query 'SELECT GroupName FROM WritingGroup'");
+            throw new InternalErrorException("Unable to execute the query " + GET_WRITING_GROUPS_QUERY);
         }
         return result;
     }
@@ -119,15 +129,21 @@ public class Repository {
      * 
      * @return all records in the Publisher table.
      */
-    public List<String> getAllPublisherNames() {
-        List<String> result = new ArrayList<>();
+    public List<Publisher> getAllPublisherNames() {
+        List<Publisher> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT PublisherName FROM Publisher")) {
+            ResultSet rs = statement.executeQuery(GET_PUBLISHERS_QUERY)) {
             while (rs.next()) {
-                result.add(rs.getString("PublisherName"));
+                Publisher publisher = Publisher.builder()
+                    .publisherName(rs.getString("PublisherName"))
+                    .publisherEmail(rs.getString("PublisherEmail"))
+                    .publisherPhone(rs.getString("PublisherPhone"))
+                    .publisherAddress(rs.getString("PublisherAddress"))
+                    .build();
+                result.add(publisher);
             }
         } catch (SQLException e) {
-            throw new InternalErrorException("Unable to execute the query 'SELECT PublisherName FROM Publisher'");
+            throw new InternalErrorException("Unable to execute the query " + GET_PUBLISHERS_QUERY);
         }
         return result;
     }
@@ -165,15 +181,22 @@ public class Repository {
      * 
      * @return all records in the Book table.
      */
-    public List<String> getAllBookTitles() {
-        List<String> result = new ArrayList<>();
+    public List<Book> getAllBookTitles() {
+        List<Book> result = new ArrayList<>();
         try (Statement statement = connection.createStatement();
-            ResultSet rs = statement.executeQuery("SELECT BookTitle FROM Book")) {
+            ResultSet rs = statement.executeQuery(GET_BOOKS_QUERY)) {
             while (rs.next()) {
-                result.add(rs.getString("BookTitle"));
+                Book book = Book.builder()
+                    .bookTitle(rs.getString("BookTitle"))
+                    .groupName(rs.getString("GroupName"))
+                    .publisherName(rs.getString("PublisherName"))
+                    .numberOfPages(rs.getInt("NumberPages"))
+                    .yearPublished(rs.getInt("YearPublished"))
+                    .build();
+                result.add(book);
             }
         } catch (SQLException e) {
-            throw new InternalErrorException("Unable to execute the query 'SELECT BookTitle FROM Book'");
+            throw new InternalErrorException("Unable to execute the query " + GET_BOOKS_QUERY, e);
         }
         return result;
     }
@@ -222,8 +245,8 @@ public class Repository {
             statement.setString(3, book.publisherName());
             statement.setInt(4, book.yearPublished());
             statement.setInt(5, book.numberOfPages());
-            int count = statement.executeUpdate();
-            return count > 0;
+            statement.executeUpdate();
+            return true;
         } catch (SQLIntegrityConstraintViolationException e) {
             return false;
         } catch (SQLException e) {
@@ -243,8 +266,8 @@ public class Repository {
             statement.setString(2, publisher.publisherAddress());
             statement.setString(3, publisher.publisherPhone());
             statement.setString(4, publisher.publisherEmail());
-            int count = statement.executeUpdate();
-            return count > 0;
+            statement.executeUpdate();
+            return true;
         } catch (SQLIntegrityConstraintViolationException e) {
             System.out.printf("Failed to insert publisher '%s' because it already exists\n", publisher.publisherName());
             return false;
@@ -263,8 +286,8 @@ public class Repository {
         try (PreparedStatement statement = connection.prepareStatement(UPDATE_BOOK_PUBLISHER_STATEMENT)) {
             statement.setString(1, newPublisher);
             statement.setString(2, formerPublisher);
-            int count = statement.executeUpdate();
-            return count > 0;
+            statement.executeUpdate();
+            return true;
         }  catch (SQLException e) {
             throw new InternalErrorException("Unable to execute the query " + UPDATE_BOOK_PUBLISHER_STATEMENT);
         }
@@ -280,8 +303,8 @@ public class Repository {
         try (PreparedStatement statement = connection.prepareStatement(REMOVE_BOOK_STATEMENT)) {
             statement.setString(1, groupName);
             statement.setString(2, bookTitle);
-            int count = statement.executeUpdate();
-            return count > 0;
+            statement.executeUpdate();
+            return true;
         } catch (SQLIntegrityConstraintViolationException e) {
             return false;
         }  catch (SQLException e) {
